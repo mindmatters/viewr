@@ -1,5 +1,7 @@
 # Viewr
 
+[![Build Status](https://travis-ci.org/mindmatters/viewr.png)](https://travis-ci.org/mindmatters/viewr)
+
 A Database View dependency resolver
 
 ## Installation
