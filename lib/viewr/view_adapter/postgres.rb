@@ -1,5 +1,3 @@
-require_relative '../view'
-
 module Viewr
   module ViewAdapter
     class Postgres
