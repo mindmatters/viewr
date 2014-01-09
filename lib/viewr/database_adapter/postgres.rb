@@ -1,5 +1,5 @@
 module Viewr
-  module ViewAdapter
+  module DatabaseAdapter
     class Postgres
       attr_accessor :connection
 

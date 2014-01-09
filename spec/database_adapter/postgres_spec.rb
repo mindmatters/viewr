@@ -1,9 +1,9 @@
-require_relative '../../lib/viewr/view_adapter/postgres'
+require_relative '../../lib/viewr/database_adapter/postgres'
 
-describe Viewr::ViewAdapter::Postgres do
+describe Viewr::DatabaseAdapter::Postgres do
 
   let (:connection) { double }
-  let (:postgres_adapter) { Viewr::ViewAdapter::Postgres.new(connection) }
+  let (:postgres_adapter) { Viewr::DatabaseAdapter::Postgres.new(connection) }
   let (:view_foo) { double(name: 'foo', sql: 'foo_sql') }
 
   describe '.new' do
