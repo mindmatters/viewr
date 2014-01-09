@@ -1,7 +1,7 @@
 require 'set'
 
 module Viewr
-  class ViewRunner < ::Set
+  class SchemaObjectRunner < ::Set
 
     attr_reader :adapter
     attr_accessor :already_run_views

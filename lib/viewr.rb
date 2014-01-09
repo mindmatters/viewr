@@ -1,12 +1,12 @@
 require_relative "viewr/version"
 require_relative "viewr/view"
-require_relative "viewr/view_runner"
+require_relative "viewr/schema_object_runner"
 require_relative "viewr/database_adapter/postgres"
 
 module Viewr
   def self.run_views(connection, method, view_files_path)
     adapter = DatabaseAdapter::Postgres.new(connection)
-    runner = ViewRunner.new(adapter)
+    runner = SchemaObjectRunner.new(adapter)
 
     viewfiles = File.join(view_files_path, '*.yml')
     Dir.glob(viewfiles).each do |viewfile|
