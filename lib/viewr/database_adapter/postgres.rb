@@ -31,6 +31,27 @@ module Viewr
         drop_view(view)
         create_view(view)
       end
+
+      def drop_function_sql(function)
+        "DROP FUNCTION IF EXISTS #{function.name} CASCADE"
+      end
+
+      def create_function_sql(function)
+        "CREATE FUNCTION #{function.name}(#{function.arguments.join(', ')}) RETURNS #{function.returns} AS $BODY$ #{function.sql}; $BODY$ LANGUAGE SQL"
+      end
+
+      def drop_function(function)
+        run(drop_function_sql(function))
+      end
+
+      def create_function(function)
+        run(create_function_sql(function))
+      end
+
+      def recreate_function(function)
+        drop_function(function)
+        create_function(function)
+      end
     end
   end
 end
