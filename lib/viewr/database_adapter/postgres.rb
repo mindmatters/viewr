@@ -11,25 +11,25 @@ module Viewr
         connection.run(statement)
       end
 
-      def drop_sql(view)
+      def drop_view_sql(view)
         "DROP VIEW IF EXISTS #{view.name} CASCADE;"
       end
 
-      def create_sql(view)
+      def create_view_sql(view)
         "CREATE VIEW #{view.name} AS (#{view.sql});"
       end
 
-      def drop(view)
-        run(drop_sql(view))
+      def drop_view(view)
+        run(drop_view_sql(view))
       end
 
-      def create(view)
-        run(create_sql(view))
+      def create_view(view)
+        run(create_view_sql(view))
       end
 
-      def recreate(view)
-        drop(view)
-        create(view)
+      def recreate_view(view)
+        drop_view(view)
+        create_view(view)
       end
     end
   end
