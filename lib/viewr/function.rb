@@ -1,13 +1,16 @@
 require 'yaml'
 
 module Viewr
-  class View
+  class Function
     attr_reader :name, :dependencies, :sql
 
-    def initialize(view_doc)
-      @name = view_doc['name']
-      @dependencies = view_doc['dependencies']
-      @sql = view_doc['sql']
+    def initialize(function_doc)
+      @name = function_doc['name']
+      @dependencies = function_doc['dependencies']
+      @arguments = function_doc['arguments']
+      @returns = function_doc['returns']
+
+      @sql = function_doc['sql']
     end
 
     def self.new_from_yaml(yaml)
@@ -26,8 +29,8 @@ module Viewr
       @dependencies || []
     end
 
-    def eql?(another_view)
-      self.name == another_view.name
+    def eql?(another_function)
+      self.name == another_function.name
     end
 
     def hash
