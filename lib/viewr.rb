@@ -1,23 +1,48 @@
 require_relative "viewr/version"
+require_relative "viewr/function"
 require_relative "viewr/view"
 require_relative "viewr/schema_object_runner"
-require_relative "viewr/database_adapter/postgres"
+require_relative "viewr/database_adapter"
 
 module Viewr
-  def self.create_views_and_functions(connection, method, view_files_path, function_files_path)
-    adapter = DatabaseAdapter::Postgres.new(connection)
+
+  def self.create_all(connection, view_files_path, function_files_path)
+    runner = self.setup_runner(connection, view_files_path, function_files_path)
+    runner.create_all
+  end
+
+  def self.drop_all(connection, view_files_path, function_files_path)
+    runner = self.setup_runner(connection, view_files_path, function_files_path)
+    runner.drop_all
+  end
+
+  def self.recreate_all(connection, view_files_path, function_files_path)
+    runner = self.setup_runner(connection, view_files_path, function_files_path)
+    runner.drop_all
+    runner.create_all
+  end
+
+  def self.setup_runner(connection, view_files_path, function_files_path)
+    adapter = DatabaseAdapter.new(connection)
     runner = SchemaObjectRunner.new(adapter)
 
-    view_files = File.join(view_files_path, '*.yml')
+    self.load_views(view_files_path, runner)
+    self.load_functions(function_files_path, runner)
+
+    runner
+  end
+
+  def self.load_views(path, runner, database_adapter)
+    view_files = File.join(path, '*.yml')
     Dir.glob(view_files).each do |view_file|
-      runner << View.new_from_yaml_file(view_file)
+      runner << View.new_from_yaml(IO.read(view_file), database_adapter)
     end
+  end
 
-    function_files = File.join(function_files_path, '*.yml')
+  def self.load_functions(path, runner, database_adapter)
+    function_files = File.join(path, '*.yml')
     Dir.glob(function_files).each do |function_file|
-      runner << Function.new_from_yaml_file(function_file)
+      runner << Function.new_from_yaml(IO.read(function_file), database_adapter)
     end
-
-    runner.run_all(method)
   end
 end
