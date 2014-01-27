@@ -11,17 +11,17 @@ Add this line to your application's Gemfile:
 
     gem 'viewr'
 
-And then execute:
+and then execute:
 
     $ bundle install
 
-Or install it system-wide:
+Or install system-wide:
 
     $ gem install viewr
 
 ## Usage
 
-Place YAML Files containing descriptions of your views and functions into a
+Place YAML Files containing descriptions of your views and functions into two
 folder, e.g. `db/views` and `db/functions` in a Rails project.
 
 Example YAML file:
@@ -40,44 +40,37 @@ and `some_function`. When Viewr creates `view_name`, it will do so only after
 it has created `some_other_view` and `some_function`, possibly creating other
 views or functions these depend on.
 
-Example usage:
-
-```ruby
-require 'viewr'
-
-Viewr.create_all(sequel_connection, '/path/to/view/files', '/path/to/function/files')
-```
-
-In all examples you need to
+To create or drop views and functions, your first need to:
 
 ```ruby
     require 'viewr'
 ```
 
-To issue `CREATE` statements for all given views and functions:
+To issue `CREATE` statements for all defined views and functions,
 
 ```ruby
     Viewr.create_all(sequel_connection, '/path/to/view/files', '/path/to/function/files')
 ```
 
-To drop all views and functions:
+To drop all views and functions,
 
 ```ruby
     Viewr.drop_all(sequel_connection, '/path/to/view/files', '/path/to/function/files')
 ```
 
-To drop all views and functions and then re-create them:
+To drop all views and functions and then re-create them,
 
 ```ruby
     Viewr.recreate_all(sequel_connection, '/path/to/view/files', '/path/to/function/files')
 ```
 
 ## To do
-- rename this project to `squealer`
+- rename this project to `squealer` (it doesn‘t do only views anymore)
+- allow user to omit view of function folder
 - rename class `SchemaObjectRunner`
 - circular dependency detection (refactor dependency resolution anyway)
 - is one namespace for views and functions a wise decision?
-- check whether database_adapter is Postgres-specific.
+- check whether database_adapter is Postgres-specific
 
 ## Contributing
 
