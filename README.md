@@ -2,7 +2,8 @@
 
 [![Build Status](https://travis-ci.org/mindmatters/viewr.png)](https://travis-ci.org/mindmatters/viewr)
 
-A Database View dependency resolver
+Viewr provides for a generic description format for SQL views and functions,
+and creates or drops them, resolving dependencies on the way.
 
 ## Installation
 
@@ -12,40 +13,72 @@ Add this line to your application's Gemfile:
 
 And then execute:
 
-    $ bundle
+    $ bundle install
 
-Or install it yourself as:
+Or install it system-wide:
 
     $ gem install viewr
 
 ## Usage
 
-Place Yaml Files containing your view's sql in a folder.
-Viewr will create views that other views depend on first.
+Place YAML Files containing descriptions of your views and functions into a
+folder, e.g. `db/views` and `db/functions` in a Rails project.
 
-Template yaml-File
+Example YAML file:
 
 ```yaml
 name: view_name
 dependencies:
-    - dependency_1
-    - dependency_2
+    - some_other_view
+    - some_function
 sql: |
     SELECT * FROM my_fancy_table
 ```
 
-Example usage
+This file describes an SQL view `view_name` which depends on `some_other_view`
+and `some_function`. When Viewr creates `view_name`, it will do so only after
+it has created `some_other_view` and `some_function`, possibly creating other
+views or functions these depend on.
+
+Example usage:
 
 ```ruby
 require 'viewr'
 
-Viewr.run_views(sequel_connection, :create, '/path/to/yaml/files')
+Viewr.create_all(sequel_connection, '/path/to/view/files', '/path/to/function/files')
 ```
+
+In all examples you need to
+
+```ruby
+    require 'viewr'
+```
+
+To issue `CREATE` statements for all given views and functions:
+
+```ruby
+    Viewr.create_all(sequel_connection, '/path/to/view/files', '/path/to/function/files')
+```
+
+To drop all views and functions:
+
+```ruby
+    Viewr.drop_all(sequel_connection, '/path/to/view/files', '/path/to/function/files')
+```
+
+To drop all views and functions and then re-create them:
+
+```ruby
+    Viewr.recreate_all(sequel_connection, '/path/to/view/files', '/path/to/function/files')
+```
+
+## To do
+- rename this project to `squealer`
+- rename class `SchemaObjectRunner`
+- circular dependency detection (refactor dependency resolution anyway)
+- is one namespace for views and functions a wise decision?
+- check whether database_adapter is Postgres-specific.
 
 ## Contributing
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+Pull requests are warmly welcome! :)
