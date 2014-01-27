@@ -1,172 +1,106 @@
 require_relative '../lib/viewr/schema_object_runner'
-require_relative '../lib/viewr/view'
 
 describe Viewr::SchemaObjectRunner do
 
-  let (:adapter) { double.as_null_object }
+  let(:foo) { double(:view_or_function, name: 'foo', dependencies: [], has_dependencies?: false) }
+  let(:bar) { double(:view_or_function, name: 'bar', dependencies: ['foo'], has_dependencies?: true) }
+  let(:qux) { double(:view_or_function, name: 'qux', dependencies: [], has_dependencies?: true) }
+
+  let (:schema_object_runner) { Viewr::SchemaObjectRunner.new([foo, bar, qux]) }
 
   describe '.new' do
-    it 'creates inner references to its given adapter and viewlist' do
-      viewlist = [double]
-
-      schema_object_runner = Viewr::SchemaObjectRunner.new(adapter, viewlist)
-
-      schema_object_runner.adapter.should == adapter
+    it 'saves references to the given array of views and functions' do
       schema_object_runner.should be_a(Set)
-      schema_object_runner.first.should == viewlist.first
+      schema_object_runner == Set.new([foo, bar, qux])
     end
 
     it 'initializes as empty Set if no starting Set is given' do
-      schema_object_runner = Viewr::SchemaObjectRunner.new(adapter)
+      schema_object_runner = Viewr::SchemaObjectRunner.new
       schema_object_runner.should be_empty
     end
   end
 
-  context 'given the following view list structure' do
+  describe '#find_by_names' do
+    it 'finds views by their names' do
+      schema_object_runner.find_by_names(['foo', 'bar']).should == Set.new([foo, bar])
+    end
+  end
 
-    let (:view_with_dependency_foo1) do
-      Viewr::View.new({
-        'name' => 'foo1',
-        'dependencies' => ['bar'],
-        'sql' => 'SOME SQL STATEMENT FOR FOO1 HERE'
-      })
+  describe '#run' do
+    it 'does not run the requested method on the view if it has already run' do
+      schema_object_runner.should_receive(:find_by_names).with([]).and_return(Set.new)
+      foo.should_receive(:send).with(:method).once
+
+      schema_object_runner.run(foo, :method)
+      schema_object_runner.run(foo, :method)
+
     end
 
-    let (:view_with_dependencies_foo2) do
-      Viewr::View.new({
-        'name' => 'foo2',
-        'dependencies' => ['bar', 'baz'],
-        'sql' => 'SOME SQL STATEMENT FOR FOO2 HERE'
-      })
-    end
+    context 'called with a view that has dependencies' do
+      context 'and all dependencies have already run' do
+        before do
+          schema_object_runner.stub(:find_by_names).and_return(Set.new)
+          foo.stub(:send)
 
-    let (:view_without_dependency_bar) do
-      Viewr::View.new({
-        'name' => 'bar',
-        'sql' => 'SOME SQL STATEMENT FOR BAR HERE'
-      })
-    end
-
-    let (:view_without_dependency_baz) do
-      Viewr::View.new({
-        'name' => 'baz',
-        'sql' => 'SOME SQL STATEMENT FOR BAZ HERE'
-      })
-    end
-
-    let (:viewlist) do
-      [
-        view_with_dependency_foo1,
-        view_with_dependencies_foo2,
-        view_without_dependency_bar,
-        view_without_dependency_baz
-      ]
-    end
-
-    let (:schema_object_runner) { Viewr::SchemaObjectRunner.new(adapter, viewlist) }
-
-    describe '#find_by_names' do
-      it 'finds views by their names' do
-        schema_object_runner.find_by_names(['foo1', 'foo2']).should == Set.new(
-          [view_with_dependency_foo1, view_with_dependencies_foo2]
-        )
-      end
-    end
-
-    describe '#run' do
-
-      it 'does not run the requested method on the view if it has already run' do
-        view = view_without_dependency_bar
-        schema_object_runner.already_run = Set.new [view]
-
-        adapter.should_not_receive(:foo).with(view)
-
-        schema_object_runner.run(view, :foo)
-      end
-
-      context 'called with a view that has no dependencies' do
-        let (:view) { view_without_dependency_bar }
+          schema_object_runner.run(foo, :method)
+        end
 
         it 'sends the requested method to the view' do
-          adapter.should_receive(:foo).with(view)
-          schema_object_runner.run(view, :foo)
-        end
+          schema_object_runner.should_receive(:find_by_names).with(['foo']).and_return(Set.new([foo]))
+          bar.should_receive(:send).with(:method)
 
-        it 'adds the run view to the inner list of already run views' do
-          schema_object_runner.already_run.should == Set.new
-          schema_object_runner.run(view, :foo)
-          schema_object_runner.already_run.should == Set.new([view])
+          schema_object_runner.run(bar, :method)
         end
       end
 
-      context 'called with a view that has dependencies' do
+      context 'and dependencies have not yet been run' do
+        it 'first runs the view depended upon and then the given view' do
+          schema_object_runner.stub(:find_by_names).with(['foo']).and_return(Set.new([foo]))
+          schema_object_runner.stub(:find_by_names).with([]).and_return(Set.new)
+          foo.should_receive(:send).with(:method).ordered
+          bar.should_receive(:send).with(:method).ordered
 
-        let (:view) { view_with_dependency_foo1 }
+          schema_object_runner.run(bar, :method)
+        end
+      end
 
-        context 'and all dependencies have already run' do
-
-          before { schema_object_runner.already_run = Set.new([view_without_dependency_bar]) }
-
-          it 'sends the requested method to the view' do
-            adapter.should_receive(:foo).with(view)
-            schema_object_runner.run(view, :foo)
-          end
-
-          it 'adds the run view to the inner list of already run views' do
-            schema_object_runner.run(view, :foo)
-            schema_object_runner.already_run.should == Set.new(
-              [view_without_dependency_bar, view]
-            )
-          end
+      context 'and dependencies have already been run' do
+        before do
+          schema_object_runner.stub(:find_by_names).with([]).and_return(Set.new)
+          foo.stub(:send).with(:method).ordered
+          schema_object_runner.run(foo, :method)
         end
 
-        context 'and some or all dependencies have not already run' do
+        it 'does not send the method to the dependent views that have already run' do
+          schema_object_runner.stub(:find_by_names).with(['foo']).and_return(Set.new([foo]))
+          foo.should_not_receive(:send).with(:method)
+          bar.should_receive(:send).with(:method)
 
-          let (:view) { view_with_dependencies_foo2 }
-
-          before do
-            schema_object_runner.already_run = Set.new([view_without_dependency_bar])
-          end
-
-          it 'first sends the method to the not-already-run dependent views' +
-             'and then to the view itself' do
-            adapter.should_receive(:foo).with(view_without_dependency_baz).ordered
-            adapter.should_receive(:foo).with(view).ordered
-
-            schema_object_runner.run(view, :foo)
-          end
-
-          it 'does not send the method to the dependent views that have already run' do
-            adapter.should_not_receive(:foo).with(view_without_dependency_bar)
-            schema_object_runner.run(view, :foo)
-          end
-
-          it 'adds the now run views to the inner list of already run views' do
-            schema_object_runner.run(view, :foo)
-
-            schema_object_runner.already_run.should eql(
-              Set.new([
-                view_without_dependency_bar,
-                view_without_dependency_baz,
-                view
-              ])
-            )
-          end
+          schema_object_runner.run(bar, :method)
         end
       end
     end
+  end
 
-    describe '#run_all' do
-      it 'runs #run for every view' do
-        viewlist = [view_with_dependency_foo1, view_with_dependencies_foo2]
-        schema_object_runner = Viewr::SchemaObjectRunner.new(adapter, viewlist)
+  describe '#create_all' do
+    it 'runs all database objects with method :create' do
+      schema_object_runner.should_receive(:run).with(foo, :create)
+      schema_object_runner.should_receive(:run).with(bar, :create)
+      schema_object_runner.should_receive(:run).with(qux, :create)
 
-        schema_object_runner.should_receive(:run).with(view_with_dependency_foo1, :foo)
-        schema_object_runner.should_receive(:run).with(view_with_dependencies_foo2, :foo)
-
-        schema_object_runner.run_all(:foo)
-      end
+      schema_object_runner.create_all
     end
+  end
+
+  describe '#drop_all' do
+    it 'runs all database objects with method :drop' do
+      schema_object_runner.should_receive(:run).with(foo, :drop)
+      schema_object_runner.should_receive(:run).with(bar, :drop)
+      schema_object_runner.should_receive(:run).with(qux, :drop)
+
+      schema_object_runner.drop_all
+    end
+
   end
 end
 

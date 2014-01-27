@@ -3,39 +3,41 @@ require 'set'
 module Viewr
   class SchemaObjectRunner < ::Set
 
-    attr_reader :adapter
     attr_accessor :already_run
 
-    def initialize(adapter, views_and_functions = [])
+    def initialize(views_and_functions = [])
       super(views_and_functions)
-      @adapter = adapter
       @already_run = Set.new
     end
 
     def find_by_names(names)
-      self.select { |view_or_function| names.include? view_or_function.name }.to_set
+      self.select { |database_object| names.include? database_object.name }.to_set
     end
 
-    def run(view_or_function, method)
-      return if already_run.include?(view_or_function)
+    def run(database_object, method)
+      return if already_run.include?(database_object)
 
-      dependencies = find_by_names(view_or_function.dependencies)
+      dependencies = find_by_names(database_object.dependencies)
 
-      if !view_or_function.has_dependencies? || dependencies.subset?(already_run)
-        adapter.send(method, view_or_function)
-        already_run << view_or_function
+      if !database_object.has_dependencies? or dependencies.subset?(already_run)
+        database_object.send(method)
+        already_run << database_object
       else
         (dependencies - already_run).each do |dependency|
           run(dependency, method)
         end
-        run(view_or_function, method)
+
+        run(database_object, method)
       end
     end
 
-    def run_all(method)
-      self.each { |view_or_function| run(view_or_function, method) }
+    def create_all
+      self.each { |database_object| run(database_object, :create) }
     end
 
+    def drop_all
+      self.each { |database_object| run(database_object, :drop) }
+    end
   end
 end
 
