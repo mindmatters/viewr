@@ -24,10 +24,10 @@ module Viewr
 
   def self.setup_runner(connection, view_files_path, function_files_path)
     adapter = DatabaseAdapter.new(connection)
-    runner = SchemaObjectRunner.new(adapter)
+    runner = SchemaObjectRunner.new
 
-    self.load_views(view_files_path, runner)
-    self.load_functions(function_files_path, runner)
+    self.load_views(view_files_path, runner, adapter)
+    self.load_functions(function_files_path, runner, adapter)
 
     runner
   end

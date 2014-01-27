@@ -1,4 +1,4 @@
-require_relative '../lib/viewr/schema_object_runner'
+require_relative '../../lib/viewr/schema_object_runner'
 
 describe Viewr::SchemaObjectRunner do
 

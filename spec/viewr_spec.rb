@@ -41,9 +41,9 @@ describe Viewr do
       adapter = double(:database_adapter)
       runner = double(:database_object_runner)
       Viewr::DatabaseAdapter.should_receive(:new).with(:connection).and_return(adapter)
-      Viewr::SchemaObjectRunner.should_receive(:new).with(adapter).and_return(runner)
-      Viewr.should_receive(:load_views).with(:view_files_path, runner)
-      Viewr.should_receive(:load_functions).with(:function_files_path, runner)
+      Viewr::SchemaObjectRunner.should_receive(:new).and_return(runner)
+      Viewr.should_receive(:load_views).with(:view_files_path, runner, adapter)
+      Viewr.should_receive(:load_functions).with(:function_files_path, runner, adapter)
 
       Viewr.setup_runner(:connection, :view_files_path, :function_files_path)
     end
