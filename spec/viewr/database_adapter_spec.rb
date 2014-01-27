@@ -21,36 +21,32 @@ describe Viewr::DatabaseAdapter do
 
   describe '#drop_view' do
     it 'runs the SQL statement returned by #drop_view_sql' do
-      database_adapter.should_receive(:drop_view_sql).with(:view).and_return(:sql_statement)
+      database_adapter.should_receive(:drop_view_sql).with(:view_name).and_return(:sql_statement)
       database_adapter.should_receive(:run).with(:sql_statement)
 
-      database_adapter.drop_view(:view)
+      database_adapter.drop_view(:view_name)
     end
   end
 
   describe '#drop_function' do
     it 'runs the SQL statement returned by #drop_function_sql' do
-      database_adapter.should_receive(:drop_function_sql).with(:function).and_return(:sql_statement)
+      database_adapter.should_receive(:drop_function_sql).with(:function_name).and_return(:sql_statement)
       database_adapter.should_receive(:run).with(:sql_statement)
 
-      database_adapter.drop_function(:function)
+      database_adapter.drop_function(:function_name)
     end
 
   end
 
   describe '#drop_view_sql' do
     it 'returns an SQL statement to drop the given view' do
-      view = double(:view, name: 'view_name')
-
-      database_adapter.drop_view_sql(view).should == 'DROP VIEW IF EXISTS view_name CASCADE'
+      database_adapter.drop_view_sql('view_name').should == 'DROP VIEW IF EXISTS view_name CASCADE'
     end
   end
 
   describe '#drop_function_sql' do
     it 'returns an SQL statement to drop the given function' do
-      function = double(:function, name: 'function_name')
-
-      database_adapter.drop_function_sql(function).should == 'DROP FUNCTION IF EXISTS function_name CASCADE'
+      database_adapter.drop_function_sql('function_name').should == 'DROP FUNCTION IF EXISTS function_name CASCADE'
     end
   end
 end

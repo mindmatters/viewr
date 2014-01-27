@@ -10,20 +10,20 @@ module Viewr
       connection.run(statement)
     end
 
-    def drop_view(view)
-      run(drop_view_sql(view))
+    def drop_view(view_name)
+      run(drop_view_sql(view_name))
     end
 
-    def drop_function(function)
-      run(drop_function_sql(function))
+    def drop_function(function_name)
+      run(drop_function_sql(function_name))
     end
 
-    def drop_view_sql(view)
-      "DROP VIEW IF EXISTS #{view.name} CASCADE"
+    def drop_view_sql(view_name)
+      "DROP VIEW IF EXISTS #{view_name} CASCADE"
     end
 
-    def drop_function_sql(function)
-      "DROP FUNCTION IF EXISTS #{function.name} CASCADE"
+    def drop_function_sql(function_name)
+      "DROP FUNCTION IF EXISTS #{function_name} CASCADE"
     end
   end
 end
