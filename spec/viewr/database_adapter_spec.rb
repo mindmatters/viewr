@@ -30,7 +30,8 @@ describe Viewr::DatabaseAdapter do
 
   describe '#drop_function' do
     it 'runs the SQL statement returned by #drop_function_sql' do
-      database_adapter.should_receive(:drop_function_sql).with(:function_name).and_return(:sql_statement)
+      database_adapter.should_receive(:existing_functions_with_argument_types).with(:function_name).and_return([:foo])
+      database_adapter.should_receive(:drop_function_sql).with(:foo).and_return(:sql_statement)
       database_adapter.should_receive(:run).with(:sql_statement)
 
       database_adapter.drop_function(:function_name)

@@ -28,6 +28,8 @@ module Viewr
       "DROP FUNCTION IF EXISTS #{function_with_argument_types} CASCADE"
     end
 
+    private
+
     def existing_functions_with_argument_types(function_name)
       functions = []
       @connection["
