@@ -1,4 +1,5 @@
 require 'set'
+require_relative 'exception'
 
 module Viewr
   class SchemaObjectRunner < ::Set
@@ -20,7 +21,12 @@ module Viewr
       dependencies = find_by_names(database_object.dependencies)
 
       if !database_object.has_dependencies? or dependencies.subset?(already_run)
-        database_object.send(method)
+        begin
+          database_object.send(method)
+        rescue StandardError => e
+          raise Viewr::SQLError.new "Error while processing #{database_object.name}: #{e.message}"
+        end
+
         already_run << database_object
       else
         (dependencies - already_run).each do |dependency|

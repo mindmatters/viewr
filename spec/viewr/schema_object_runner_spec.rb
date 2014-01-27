@@ -1,4 +1,5 @@
 require_relative '../../lib/viewr/schema_object_runner'
+require_relative '../../lib/viewr/exception'
 
 describe Viewr::SchemaObjectRunner do
 
@@ -33,7 +34,13 @@ describe Viewr::SchemaObjectRunner do
 
       schema_object_runner.run(foo, :method)
       schema_object_runner.run(foo, :method)
+    end
 
+    it 'raises a Viewr::SQLError exception when a postgres error occurs' do
+      schema_object_runner.should_receive(:find_by_names).with([]).and_return(Set.new)
+      foo.should_receive(:send).with(:method).and_raise(StandardError.new('MESSAGE'))
+
+      expect { schema_object_runner.run(foo, :method) }.to raise_error(Viewr::SQLError)
     end
 
     context 'called with a view that has dependencies' do
