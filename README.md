@@ -65,9 +65,10 @@ To drop all views and functions and then re-create them,
 ```
 
 ## To do
-- rename this project to `squealer` (it doesn‘t do only views anymore)
+- rename this project to something else (it doesn‘t do only views anymore)
 - allow user to omit view of function folder
 - rename class `SchemaObjectRunner`
+- add Rails-specific support (through [engines](http://guides.rubyonrails.org/engines.html))
 - circular dependency detection (refactor dependency resolution anyway)
 - is one namespace for views and functions a wise decision?
 - check whether database_adapter is Postgres-specific
