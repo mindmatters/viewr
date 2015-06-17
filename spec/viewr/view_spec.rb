@@ -17,7 +17,7 @@ describe Viewr::View do
 
   describe '#create' do
     it 'should run the SQL on the adapter' do
-      adapter.should_receive(:run).with('SQL STATEMENT')
+      expect(adapter).to receive(:run).with('SQL STATEMENT')
 
       view.create
     end
@@ -25,7 +25,7 @@ describe Viewr::View do
 
   describe '#drop' do
     it 'should drop the view using the adapter' do
-      adapter.should_receive(:drop_view).with('bar')
+      expect(adapter).to receive(:drop_view).with('bar')
 
       view.drop
     end

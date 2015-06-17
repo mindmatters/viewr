@@ -21,10 +21,10 @@ shared_examples 'a database object' do
   describe '#initialize' do
     it 'creates accessors for the view typical properties' do
       database_object = Viewr::DatabaseObject.new(view_doc_with_dependencies, :adapter)
-      database_object.name.should == 'foo'
-      database_object.dependencies.should == ['bar', 'baz']
-      database_object.sql.should == 'SOME SQL STATEMENT FOR FOO HERE'
-      database_object.adapter.should == :adapter
+      expect(database_object.name).to eql 'foo'
+      expect(database_object.dependencies).to eql ['bar', 'baz']
+      expect(database_object.sql).to eql 'SOME SQL STATEMENT FOR FOO HERE'
+      expect(database_object.adapter).to eql :adapter
     end
   end
 
@@ -32,30 +32,30 @@ shared_examples 'a database object' do
     it 'creates a view with the parsed yaml' do
       database_object = Viewr::DatabaseObject.new_from_yaml(yaml, :adapter)
 
-      database_object.name.should == 'foo'
-      database_object.dependencies.should == ['bar']
-      database_object.sql.should == 'SQL'
-      database_object.adapter.should == :adapter
+      expect(database_object.name).to eql 'foo'
+      expect(database_object.dependencies).to eql ['bar']
+      expect(database_object.sql).to eql 'SQL'
+      expect(database_object.adapter).to eql :adapter
     end
   end
 
   describe '#dependencies' do
     it 'returns an empty array if the view has no dependencies' do
-      Viewr::DatabaseObject.new(view_doc_without_dependencies, :adapter).dependencies.should == []
+      expect(Viewr::DatabaseObject.new(view_doc_without_dependencies, :adapter).dependencies).to eql []
     end
 
     it 'returns the dependencies' do
-      Viewr::DatabaseObject.new(view_doc_with_dependencies, :adapter).dependencies.should == ['bar', 'baz']
+      expect(Viewr::DatabaseObject.new(view_doc_with_dependencies, :adapter).dependencies).to eql ['bar', 'baz']
     end
   end
 
   describe '#has_dependencies?' do
     it 'returns true if the view has dependencies' do
-      Viewr::DatabaseObject.new(view_doc_with_dependencies, :adapter).has_dependencies?.should be_true
+      expect(Viewr::DatabaseObject.new(view_doc_with_dependencies, :adapter)).to be_has_dependencies
     end
 
     it 'returns false if the view doesn‘t have dependencies' do
-      Viewr::DatabaseObject.new(view_doc_without_dependencies, :adapter).has_dependencies?.should be_false
+      expect(Viewr::DatabaseObject.new(view_doc_without_dependencies, :adapter)).not_to be_has_dependencies
     end
   end
 
@@ -65,7 +65,7 @@ shared_examples 'a database object' do
       view1 = Viewr::DatabaseObject.new(view_doc_with_dependencies, :adapter)
       view2 = Viewr::DatabaseObject.new(view_doc_with_dependencies, :adapter)
 
-      view1.should eql(view2)
+      expect(view1).to eql view2
     end
   end
 
@@ -74,7 +74,7 @@ shared_examples 'a database object' do
       view1 = Viewr::DatabaseObject.new(view_doc_with_dependencies, :adapter)
       view2 = Viewr::DatabaseObject.new(view_doc_with_dependencies, :adapter)
 
-      view1.hash.should == view2.hash
+      expect(view1.hash).to eql view2.hash
     end
   end
 end

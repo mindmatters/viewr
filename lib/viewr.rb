@@ -1,3 +1,5 @@
+require "erb"
+
 require_relative "viewr/version"
 require_relative "viewr/function"
 require_relative "viewr/view"
@@ -35,14 +37,14 @@ module Viewr
   def self.load_views(path, runner, database_adapter)
     view_files = File.join(path, '*.yml')
     Dir.glob(view_files).each do |view_file|
-      runner << View.new_from_yaml(IO.read(view_file), database_adapter)
+      runner << View.new_from_yaml(ERB.new(IO.read(view_file)).result, database_adapter)
     end
   end
 
   def self.load_functions(path, runner, database_adapter)
     function_files = File.join(path, '*.yml')
     Dir.glob(function_files).each do |function_file|
-      runner << Function.new_from_yaml(IO.read(function_file), database_adapter)
+      runner << Function.new_from_yaml(ERB.new(IO.read(function_file)).result, database_adapter)
     end
   end
 end

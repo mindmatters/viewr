@@ -1,0 +1,3 @@
+name: example_function
+sql: |
+  SELECT 'SAMPLE <%= "SQL"*2 %> CODE';
