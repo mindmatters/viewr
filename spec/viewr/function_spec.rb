@@ -17,7 +17,7 @@ describe Viewr::Function do
 
   describe '#create' do
     it 'should run the SQL on the adapter' do
-      adapter.should_receive(:run).with('SQL STATEMENT')
+      expect(adapter).to receive(:run).with('SQL STATEMENT')
 
       function.create
     end
@@ -25,7 +25,7 @@ describe Viewr::Function do
 
   describe '#drop' do
     it 'should drop the function using the adapter' do
-      adapter.should_receive(:drop_function).with('bar')
+      expect(adapter).to receive(:drop_function).with('bar')
 
       function.drop
     end
