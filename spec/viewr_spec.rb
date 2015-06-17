@@ -50,9 +50,10 @@ describe Viewr do
   end
 
   describe '.load_views' do
+    let(:runner) { double(:database_object_runner) }
+    let(:adapter) { double(:database_adapter) }
+
     it 'loads all views from the given directory' do
-      runner = double(:database_object_runner)
-      adapter = double(:database_adapter)
       yaml_data = double(:yaml_data)
       expect(Viewr::View).to receive(:new_from_yaml).with(
         IO.read('spec/fixtures/views/example_view.yml'), adapter).and_return(yaml_data)
@@ -60,18 +61,41 @@ describe Viewr do
 
       Viewr.load_views('spec/fixtures/views', runner, adapter)
     end
+
+    it 'evaluates ERB' do
+      evaluated_yaml = <<-YAML
+name: example_view
+sql: |
+  SELECT 'SAMPLE SQLSQL CODE';
+YAML
+      expect(Viewr::View).to receive(:new_from_yaml).with(evaluated_yaml, adapter).and_return(evaluated_yaml)
+      expect(runner).to receive(:<<).with(evaluated_yaml)
+      Viewr.load_views('spec/fixtures/erb/views', runner, adapter)
+    end
   end
 
   describe '.load_functions' do
+    let(:runner) { double(:database_object_runner) }
+    let(:adapter) { double(:database_adapter) }
+
     it 'loads all functions from the given directory' do
-      runner = double(:database_object_runner)
-      adapter = double(:database_adapter)
       yaml_data = double(:yaml_data)
       expect(Viewr::Function).to receive(:new_from_yaml).with(
         IO.read('spec/fixtures/functions/example_function.yml'), adapter).and_return(yaml_data)
       expect(runner).to receive(:<<).with(yaml_data)
 
       Viewr.load_functions('spec/fixtures/functions', runner, adapter)
+    end
+
+    it 'evaluates ERB' do
+      evaluated_yaml = <<-YAML
+name: example_function
+sql: |
+  SELECT 'SAMPLE SQLSQL CODE';
+YAML
+      expect(Viewr::Function).to receive(:new_from_yaml).with(evaluated_yaml, adapter).and_return(evaluated_yaml)
+      expect(runner).to receive(:<<).with(evaluated_yaml)
+      Viewr.load_functions('spec/fixtures/erb/functions', runner, adapter)
     end
   end
 end
