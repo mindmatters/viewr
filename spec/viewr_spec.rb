@@ -17,7 +17,7 @@ describe Viewr do
   end
 
   describe '.drop_all' do
-    it 'sets up a runner and calls #create_all on it' do
+    it 'sets up a runner and calls #drop_all on it' do
       runner = double(:runner)
 
       expect(Viewr).to receive(:setup_runner).with(:connection, :view_files_path, :function_files_path).and_return(runner)
