@@ -21,6 +21,7 @@ describe Viewr::DatabaseAdapter do
 
   describe '#drop_view' do
     it 'runs the SQL statement returned by #drop_view_sql' do
+      allow(database_adapter).to receive(:view_exists?).with(:view_name).and_return(true)
       expect(database_adapter).to receive(:drop_view_sql).with(:view_name).and_return(:sql_statement)
       expect(database_adapter).to receive(:run).with(:sql_statement)
 
@@ -40,8 +41,16 @@ describe Viewr::DatabaseAdapter do
   end
 
   describe '#drop_view_sql' do
-    it 'returns an SQL statement to drop the given view' do
+    it 'returns an SQL statement to drop the given view if type is :view' do
+      allow(database_adapter).to receive(:view_type).with('view_name').and_return(:view)
+
       expect(database_adapter.drop_view_sql('view_name')).to eql('DROP VIEW IF EXISTS view_name CASCADE')
+    end
+
+    it 'returns an SQL statement to drop the given materialized view if type is :materialized_view' do
+      allow(database_adapter).to receive(:view_type).with('view_name').and_return(:materialized_view)
+
+      expect(database_adapter.drop_view_sql('view_name')).to eql('DROP MATERIALIZED VIEW view_name CASCADE')
     end
   end
 

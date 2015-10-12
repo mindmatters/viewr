@@ -11,6 +11,8 @@ module Viewr
     end
 
     def drop_view(view_name)
+      return unless view_exists?(view_name)
+
       run(drop_view_sql(view_name))
     end
 
@@ -21,14 +23,36 @@ module Viewr
     end
 
     def drop_view_sql(view_name)
-      "DROP VIEW IF EXISTS #{view_name} CASCADE"
+      case view_type(view_name)
+      when :view then "DROP VIEW IF EXISTS #{view_name} CASCADE"
+      when :materialized_view then "DROP MATERIALIZED VIEW #{view_name} CASCADE"
+      end
     end
 
     def drop_function_sql(function_with_argument_types)
       "DROP FUNCTION IF EXISTS #{function_with_argument_types} CASCADE"
     end
 
+    def view_exists?(view_name)
+      view_type(view_name).present?
+    end
+
     private
+
+    def view_type(view_name)
+      result = @connection.fetch(%Q(
+        SELECT relkind
+        FROM pg_catalog.pg_class c
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        WHERE n.nspname = 'public' AND c.relname = '#{view_name}'
+      )).first
+
+      case
+      when result.nil? then nil
+      when result[:relkind] == 'v' then :view
+      when result[:relkind] == 'm' then :materialized_view
+      end
+    end
 
     def existing_functions_with_argument_types(function_name)
       functions = []
