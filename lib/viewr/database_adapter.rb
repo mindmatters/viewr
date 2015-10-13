@@ -34,7 +34,7 @@ module Viewr
     end
 
     def view_exists?(view_name)
-      view_type(view_name).present?
+      !view_type(view_name).nil?
     end
 
     private
