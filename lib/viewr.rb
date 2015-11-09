@@ -26,23 +26,25 @@ module Viewr
     adapter = DatabaseAdapter.new(connection)
     runner = SchemaObjectRunner.new
 
-    self.load_views(view_files_path, runner, adapter)
-    self.load_functions(function_files_path, runner, adapter)
+    self.load_view_specs(view_files_path, runner, adapter)
+    self.load_function_specs(function_files_path, runner, adapter)
 
     runner
   end
 
-  def self.load_views(path, runner, database_adapter)
+  def self.load_view_specs(path, runner, database_adapter)
     view_files = File.join(path, '*.yml')
     Dir.glob(view_files).each do |view_file|
-      runner << View.new_from_yaml(IO.read(view_file), database_adapter)
+      view_specification = IO.read(view_file)
+      runner << View.new_from_yaml(view_specification, database_adapter)
     end
   end
 
-  def self.load_functions(path, runner, database_adapter)
+  def self.load_function_specs(path, runner, database_adapter)
     function_files = File.join(path, '*.yml')
     Dir.glob(function_files).each do |function_file|
-      runner << Function.new_from_yaml(IO.read(function_file), database_adapter)
+      function_specification = IO.read(function_file)
+      runner << Function.new_from_yaml(function_specification, database_adapter)
     end
   end
 end
