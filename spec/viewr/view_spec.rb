@@ -25,7 +25,7 @@ describe Viewr::View do
 
   describe '#drop' do
     it 'should drop the view using the adapter' do
-      expect(adapter).to receive(:drop_view).with('bar')
+      expect(adapter).to receive(:drop_view).with(view)
 
       view.drop
     end

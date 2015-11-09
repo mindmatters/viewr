@@ -25,10 +25,9 @@ describe Viewr::Function do
 
   describe '#drop' do
     it 'should drop the function using the adapter' do
-      expect(adapter).to receive(:drop_function).with('bar')
+      expect(adapter).to receive(:drop_function).with(function)
 
       function.drop
     end
   end
 end
-

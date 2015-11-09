@@ -7,7 +7,7 @@ module Viewr
     end
 
     def drop
-      @adapter.drop_view(@name)
+      @adapter.drop_view(self)
     end
   end
 end
