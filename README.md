@@ -71,7 +71,6 @@ To drop all views and functions and then re-create them,
 - add Rails-specific support (through [engines](http://guides.rubyonrails.org/engines.html))
 - circular dependency detection (refactor dependency resolution anyway)
 - is one namespace for views and functions a wise decision?
-- check whether database_adapter is Postgres-specific
 
 ## Contributing
 
