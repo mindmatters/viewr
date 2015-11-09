@@ -25,6 +25,10 @@ module Viewr
       @dependencies || []
     end
 
+    def type
+      @type.to_sym if @type
+    end
+
     def create
       fail '#create is not implemented'
     end

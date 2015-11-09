@@ -10,6 +10,11 @@ module Viewr
       connection.run(statement)
     end
 
+    def create_view(view)
+      return if view_exists?(view.name)
+
+      run(create_view_sql(view))
+    end
 
     def drop_view(view)
       return unless view_exists?(view.name)
@@ -17,9 +22,20 @@ module Viewr
       run(drop_view_sql(view))
     end
 
+    def create_function(function)
+      run(function.sql)
+    end
+
     def drop_function(function)
       existing_functions_with_argument_types(function.name).each do |function_with_argument_types|
         run(drop_function_sql(function_with_argument_types))
+      end
+    end
+
+    def create_view_sql(view)
+      case view.type
+      when :view then "CREATE OR REPLACE VIEW #{view.name} AS #{view.sql}"
+      when :materialized_view then "CREATE OR REPLACE MATERIALIZED VIEW #{view.name} AS #{view.sql}"
       end
     end
 

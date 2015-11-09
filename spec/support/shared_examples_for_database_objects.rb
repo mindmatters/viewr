@@ -3,18 +3,18 @@ require_relative '../../lib/viewr/database_object'
 
 shared_examples 'a database object' do
 
-  let (:yaml) { "---\nname: foo\ndependencies:\n  - 'bar'\nsql: 'SQL'" }
+  let (:yaml) { "---\nname: foo\ndependencies:\n  - 'bar'\ntype: 'type'\nsql: 'SQL'" }
   let (:view_doc_with_dependencies) do
     {
       'name' => 'foo',
       'dependencies' => ['bar', 'baz'],
-      'sql' => 'SOME SQL STATEMENT FOR FOO HERE'
+      'sql' => 'SOME SQL STATEMENT FOR FOO HERE',
     }
   end
   let (:view_doc_without_dependencies) do
     {
       'name' => 'bar',
-      'sql' => 'SOME SQL STATEMENT FOR BAR HERE'
+      'sql' => 'SOME SQL STATEMENT FOR BAR HERE',
     }
   end
 
@@ -78,4 +78,3 @@ shared_examples 'a database object' do
     end
   end
 end
-

@@ -15,9 +15,21 @@ describe Viewr::View do
 
   it_behaves_like 'a database object'
 
+  describe '#initialize' do
+    it 'defaults type to :view' do
+      view = Viewr::View.new(view_doc, adapter)
+      expect(view.type).to eql(:view)
+    end
+
+    it 'allows to set type' do
+      view = Viewr::View.new(view_doc.merge('type' => 'materialized_views'), adapter)
+      expect(view.type).to eql(:materialized_views)
+    end
+  end
+
   describe '#create' do
     it 'should run the SQL on the adapter' do
-      expect(adapter).to receive(:run).with('SQL STATEMENT')
+      expect(adapter).to receive(:create_view).with(view)
 
       view.create
     end

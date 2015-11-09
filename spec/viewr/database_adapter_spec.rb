@@ -19,6 +19,7 @@ describe Viewr::DatabaseAdapter do
   let(:materialized_view) {
     materialized_view_params = {
       'name' => 'some_materialized_view',
+      'type' => 'materialized_view',
       'sql' => 'Select * FROM something;'
     }
     Viewr::View.new(materialized_view_params, database_adapter)
@@ -68,14 +69,10 @@ describe Viewr::DatabaseAdapter do
 
   describe '#drop_view_sql' do
     it 'returns an SQL statement to drop the given view if type is :view' do
-      allow(database_adapter).to receive(:view_type).with('view_name').and_return(:view)
-
       expect(database_adapter.drop_view_sql(view)).to eql("DROP VIEW IF EXISTS #{view.name} CASCADE")
     end
 
     it 'returns an SQL statement to drop the given materialized view if type is :materialized_view' do
-      allow(database_adapter).to receive(:view_type).with('view_name').and_return(:materialized_view)
-
       expect(database_adapter.drop_view_sql(materialized_view)).to eql("DROP MATERIALIZED VIEW #{materialized_view.name} CASCADE")
     end
   end
