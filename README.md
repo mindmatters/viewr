@@ -5,19 +5,19 @@
 Viewr provides for a generic description format for SQL views and functions,
 and creates or drops them, resolving dependencies on the way.
 
+It currently has a dependency on Sequel for accessing the database to create
+SQL views.
+
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this line to your application's Gemfile, adjusting the version number
+as wanted:
 
-    gem 'viewr'
+    gem 'viewr', github: 'mindmatters/viewr', tag: 'v0.0.6'
 
 and then execute:
 
     $ bundle install
-
-Or install system-wide:
-
-    $ gem install viewr
 
 ## Usage
 
@@ -40,7 +40,7 @@ and `some_function`. When Viewr creates `view_name`, it will do so only after
 it has created `some_other_view` and `some_function`, possibly creating other
 views or functions these depend on.
 
-To create or drop views and functions, your first need to:
+To create or drop views and functions, you first need to:
 
 ```ruby
     require 'viewr'
@@ -64,6 +64,8 @@ To drop all views and functions and then re-create them,
     Viewr.recreate_all(sequel_connection, '/path/to/view/files', '/path/to/function/files')
 ```
 
+It makes sense to define rake tasks which execute these statements.
+
 ## To do
 - rename this project to something else (it doesn‘t do only views anymore)
 - allow user to omit view of function folder
@@ -72,6 +74,7 @@ To drop all views and functions and then re-create them,
 - circular dependency detection (refactor dependency resolution anyway)
 - is one namespace for views and functions a wise decision?
 - check whether database_adapter is Postgres-specific
+- remove dependency on Sequel by using ActiveRecord.
 
 ## Contributing
 
