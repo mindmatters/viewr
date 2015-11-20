@@ -3,6 +3,7 @@ require_relative "viewr/function"
 require_relative "viewr/view"
 require_relative "viewr/schema_object_runner"
 require_relative "viewr/database_adapter"
+require_relative "viewr/railtie" if defined?(Rails)
 
 module Viewr
 
