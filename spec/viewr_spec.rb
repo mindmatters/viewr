@@ -1,7 +1,7 @@
 require 'database_helper'
 require_relative '../lib/viewr'
 
-describe Viewr do
+describe Viewr, type: :database do
 
   it "manages database views and functions" do
     view_files_path = File.expand_path("../fixtures/views/", __FILE__)
