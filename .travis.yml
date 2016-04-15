@@ -1,4 +1,19 @@
 language: ruby
+
 rvm:
-        - 1.9.3
-        - 2.0.0
+  - 1.9.3
+  - 2.0.0
+  - 2.1.0
+  - 2.3.0
+
+addons:
+  postgresql: "9.3"
+  code_climate:
+
+before_install:
+  - gem update --system
+  - gem update bundler
+
+before_script:
+  - psql -c 'create database test_database;' -U postgres
+  - cp spec/support/database.yml.travis spec/support/database.yml

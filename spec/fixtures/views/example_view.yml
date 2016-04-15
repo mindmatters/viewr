@@ -1,3 +1,4 @@
 name: example_view
 sql: |
-  SELECT 'SAMPLE SQL CODE';
+  CREATE OR REPLACE VIEW example_view AS
+  SELECT 'SAMPLE SQL CODE'::VARCHAR;

@@ -45,4 +45,5 @@ module Viewr
       runner << Function.new_from_yaml(IO.read(function_file), database_adapter)
     end
   end
+
 end
