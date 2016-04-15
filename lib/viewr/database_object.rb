@@ -15,10 +15,6 @@ module Viewr
       new(YAML.load(yaml), adapter)
     end
 
-    def has_dependencies?
-      !dependencies.empty?
-    end
-
     def dependencies
       @dependencies || []
     end
