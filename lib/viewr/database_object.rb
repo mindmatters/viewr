@@ -4,10 +4,12 @@ module Viewr
   class DatabaseObject
     attr_reader :name, :dependencies, :sql, :adapter
 
-    def initialize(function_doc, adapter)
-      @name = function_doc['name']
-      @dependencies = function_doc['dependencies']
-      @sql = function_doc['sql']
+    def initialize(specification, adapter)
+      @name = specification.fetch('name')
+      @sql = specification.fetch('sql')
+
+      @dependencies = specification['dependencies']
+
       @adapter = adapter
     end
 
@@ -23,12 +25,16 @@ module Viewr
       @dependencies || []
     end
 
+    def type
+      @type.to_sym if @type
+    end
+
     def create
-      raise '#create is not implemented'
+      fail '#create is not implemented'
     end
 
     def drop
-      raise '#drop is not implemented'
+      fail '#drop is not implemented'
     end
 
     def eql?(another_function)
@@ -40,4 +46,3 @@ module Viewr
     end
   end
 end
-

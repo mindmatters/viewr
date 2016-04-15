@@ -15,9 +15,16 @@ describe Viewr::Function do
 
   it_behaves_like 'a database object'
 
+  describe '#initialize' do
+    it 'defaults type to :function' do
+      function = Viewr::Function.new(function_doc, adapter)
+      expect(function.type).to eql(:function)
+    end
+  end
+
   describe '#create' do
     it 'should run the SQL on the adapter' do
-      expect(adapter).to receive(:run).with('SQL STATEMENT')
+      expect(adapter).to receive(:create_function).with(function)
 
       function.create
     end
@@ -25,10 +32,9 @@ describe Viewr::Function do
 
   describe '#drop' do
     it 'should drop the function using the adapter' do
-      expect(adapter).to receive(:drop_function).with('bar')
+      expect(adapter).to receive(:drop_function).with(function)
 
       function.drop
     end
   end
 end
-

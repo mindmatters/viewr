@@ -44,14 +44,14 @@ describe Viewr do
       runner = double(:database_object_runner)
       expect(Viewr::DatabaseAdapter).to receive(:new).with(:connection).and_return(adapter)
       expect(Viewr::SchemaObjectRunner).to receive(:new).and_return(runner)
-      expect(Viewr).to receive(:load_views).with(:view_files_path, runner, adapter)
-      expect(Viewr).to receive(:load_functions).with(:function_files_path, runner, adapter)
+      expect(Viewr).to receive(:load_view_specs).with(:view_files_path, runner, adapter)
+      expect(Viewr).to receive(:load_function_specs).with(:function_files_path, runner, adapter)
 
       Viewr.setup_runner(:connection, :view_files_path, :function_files_path)
     end
   end
 
-  describe '.load_views' do
+  describe '.load_view_specs' do
     it 'loads all views from the given directory' do
       runner = double(:database_object_runner)
       adapter = double(:database_adapter)
@@ -61,11 +61,11 @@ describe Viewr do
         .and_return(yaml_data)
       expect(runner).to receive(:<<).with(yaml_data)
 
-      Viewr.load_views('spec/fixtures/views', runner, adapter)
+      Viewr.load_view_specs('spec/fixtures/views', runner, adapter)
     end
   end
 
-  describe '.load_functions' do
+  describe '.load_function_specs' do
     it 'loads all functions from the given directory' do
       runner = double(:database_object_runner)
       adapter = double(:database_adapter)
@@ -75,7 +75,7 @@ describe Viewr do
         .and_return(yaml_data)
       expect(runner).to receive(:<<).with(yaml_data)
 
-      Viewr.load_functions('spec/fixtures/functions', runner, adapter)
+      Viewr.load_function_specs('spec/fixtures/functions', runner, adapter)
     end
   end
 end

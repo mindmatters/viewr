@@ -10,22 +10,39 @@ module Viewr
       connection.run(statement)
     end
 
-    def drop_view(view_name)
-      return unless view_exists?(view_name)
+    def create_view(view)
+      return if view_exists?(view.name)
 
-      run(drop_view_sql(view_name))
+      run(create_view_sql(view))
     end
 
-    def drop_function(function_name)
-      existing_functions_with_argument_types(function_name).each do |function_with_argument_types|
+    def drop_view(view)
+      return unless view_exists?(view.name)
+
+      run(drop_view_sql(view))
+    end
+
+    def create_function(function)
+      run(function.sql)
+    end
+
+    def drop_function(function)
+      existing_functions_with_argument_types(function.name).each do |function_with_argument_types|
         run(drop_function_sql(function_with_argument_types))
       end
     end
 
-    def drop_view_sql(view_name)
-      case view_type(view_name)
-      when :view then "DROP VIEW IF EXISTS #{view_name} CASCADE"
-      when :materialized_view then "DROP MATERIALIZED VIEW #{view_name} CASCADE"
+    def create_view_sql(view)
+      case view.type
+      when :view then "CREATE OR REPLACE VIEW #{view.name} AS #{view.sql}"
+      when :materialized_view then "CREATE OR REPLACE MATERIALIZED VIEW #{view.name} AS #{view.sql}"
+      end
+    end
+
+    def drop_view_sql(view)
+      case view.type
+      when :view then "DROP VIEW IF EXISTS #{view.name} CASCADE"
+      when :materialized_view then "DROP MATERIALIZED VIEW #{view.name} CASCADE"
       end
     end
 
@@ -33,18 +50,18 @@ module Viewr
       "DROP FUNCTION IF EXISTS #{function_with_argument_types} CASCADE"
     end
 
-    def view_exists?(view_name)
-      !view_type(view_name).nil?
+    def view_exists?(view)
+      !view_exists_in_database?(view).nil?
     end
 
     private
 
-    def view_type(view_name)
+    def view_exists_in_database?(view)
       result = @connection.fetch(%Q(
         SELECT relkind
         FROM pg_catalog.pg_class c
         JOIN pg_namespace n ON n.oid = c.relnamespace
-        WHERE n.nspname = 'public' AND c.relname = '#{view_name}'
+        WHERE n.nspname = 'public' AND c.relname = '#{view.name}'
       )).first
 
       case
@@ -70,4 +87,3 @@ module Viewr
     end
   end
 end
-
