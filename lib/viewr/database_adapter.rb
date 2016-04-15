@@ -11,8 +11,6 @@ module Viewr
     end
 
     def drop_view(view_name)
-      return unless view_exists?(view_name)
-
       run(drop_view_sql(view_name))
     end
 
@@ -25,16 +23,12 @@ module Viewr
     def drop_view_sql(view_name)
       case view_type(view_name)
       when :view then "DROP VIEW IF EXISTS #{view_name} CASCADE"
-      when :materialized_view then "DROP MATERIALIZED VIEW #{view_name} CASCADE"
+      when :materialized_view then "DROP MATERIALIZED VIEW IF EXISTS #{view_name} CASCADE"
       end
     end
 
     def drop_function_sql(function_with_argument_types)
       "DROP FUNCTION IF EXISTS #{function_with_argument_types} CASCADE"
-    end
-
-    def view_exists?(view_name)
-      !view_type(view_name).nil?
     end
 
     private

@@ -20,15 +20,7 @@ describe Viewr::DatabaseAdapter do
   end
 
   describe '#drop_view' do
-    it 'does not run SQL statement if view does not exist' do
-      allow(database_adapter).to receive(:view_exists?).with(:view_name).and_return(false)
-      expect(database_adapter).not_to receive(:run)
-
-      database_adapter.drop_view(:view_name)
-    end
-
     it 'runs the SQL statement returned by #drop_view_sql' do
-      allow(database_adapter).to receive(:view_exists?).with(:view_name).and_return(true)
       expect(database_adapter).to receive(:drop_view_sql).with(:view_name).and_return(:sql_statement)
       expect(database_adapter).to receive(:run).with(:sql_statement)
 
@@ -57,7 +49,7 @@ describe Viewr::DatabaseAdapter do
     it 'returns an SQL statement to drop the given materialized view if type is :materialized_view' do
       allow(database_adapter).to receive(:view_type).with('view_name').and_return(:materialized_view)
 
-      expect(database_adapter.drop_view_sql('view_name')).to eql('DROP MATERIALIZED VIEW view_name CASCADE')
+      expect(database_adapter.drop_view_sql('view_name')).to eql('DROP MATERIALIZED VIEW IF EXISTS view_name CASCADE')
     end
   end
 
@@ -67,21 +59,4 @@ describe Viewr::DatabaseAdapter do
     end
   end
 
-  describe '#view_exists?' do
-    it 'returns false if view type is nil' do
-      allow(database_adapter).to receive(:view_type).with(:view_name).and_return(nil)
-
-      result = database_adapter.view_exists?(:view_name)
-
-      expect(result).to be false
-    end
-
-    it 'returns true if view type is not nil' do
-      allow(database_adapter).to receive(:view_type).with(:view_name).and_return(:view)
-
-      result = database_adapter.view_exists?(:view_name)
-
-      expect(result).to be true
-    end
-  end
 end
