@@ -31,7 +31,7 @@ end
 
 RSpec::Matchers.define :exist_as_function do
   match do |object_name|
-    test_database.fetch(<<-SQL).count == 1
+    test_database.fetch(<<-SQL).count >= 1
       SELECT 1
       FROM pg_catalog.pg_proc p
       JOIN pg_namespace n
@@ -46,7 +46,7 @@ RSpec.configure do |config|
   config.include SpecSupport::DatabaseHelpers
   config.backtrace_exclusion_patterns = [/rspec-core/]
 
-  config.around(:each) do |example|
+  config.around(:each, type: :database) do |example|
     test_database.transaction do
       example.run
       raise Sequel::Error::Rollback
