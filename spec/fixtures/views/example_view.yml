@@ -1,4 +1,4 @@
 name: example_view
 sql: |
   CREATE OR REPLACE VIEW example_view AS
-  SELECT 'SAMPLE SQL CODE'::VARCHAR;
+  SELECT 'SAMPLE SQL CODE'::VARCHAR AS example_field;
