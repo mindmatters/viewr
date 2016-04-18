@@ -1,4 +1,7 @@
 module Viewr
+
+  AmbiguousNameInCurrentSearchPath = Class.new(StandardError)
+
   class DatabaseAdapter
     attr_accessor :connection
 
@@ -44,28 +47,46 @@ module Viewr
         SELECT relkind
         FROM pg_catalog.pg_class c
         JOIN pg_namespace n ON n.oid = c.relnamespace
-        WHERE n.nspname = 'public' AND c.relname = '#{view_name}'
-      )).first
+        WHERE n.nspname = ANY(CURRENT_SCHEMAS(false))
+          AND c.relname = '#{view_name}'
+      ))
+
+      if result.count > 1
+        raise_ambiguity_error(view_name)
+      end
 
       case
-      when result.nil? then nil
-      when result[:relkind] == 'v' then :view
-      when result[:relkind] == 'm' then :materialized_view
+      when result.count != 1 then nil
+      when result.first[:relkind] == 'v' then :view
+      when result.first[:relkind] == 'm' then :materialized_view
       end
     end
 
     def fully_qualified_function_names(function_name)
-      @connection.fetch(<<-SQL).map { |row| row[:name] }
+      result = @connection.fetch <<-SQL
         SELECT
           format('%s.%s (%s)',
-            nspname,
-            proname,
-            oidvectortypes(proargtypes)
-          ) AS name
-        FROM pg_proc
-        INNER JOIN pg_namespace ON (pg_namespace.oid = pg_proc.pronamespace)
-        WHERE proname = '#{function_name}'
+            n.nspname,
+            p.proname,
+            oidvectortypes(p.proargtypes)
+          ) AS name,
+          n.nspname AS namespace
+        FROM pg_proc p
+        JOIN pg_namespace n ON (n.oid = p.pronamespace)
+        WHERE n.nspname = ANY(CURRENT_SCHEMAS(false))
+          AND p.proname = '#{function_name}'
       SQL
+
+      if result.map { |row| row[:namespace] }.uniq.count > 1
+        raise_ambiguity_error(function_name)
+      end
+
+      result.map { |row| row[:name] }
+    end
+
+    def raise_ambiguity_error(object_name)
+      msg = "The database object #{object_name} exists multiple times within the current search path."
+      raise AmbiguousNameInCurrentSearchPath.new(msg)
     end
   end
 end
