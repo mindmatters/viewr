@@ -49,16 +49,6 @@ shared_examples 'a database object' do
     end
   end
 
-  describe '#has_dependencies?' do
-    it 'returns true if the view has dependencies' do
-      expect(Viewr::DatabaseObject.new(view_doc_with_dependencies, :adapter)).to have_dependencies
-    end
-
-    it 'returns false if the view doesn‘t have dependencies' do
-      expect(Viewr::DatabaseObject.new(view_doc_without_dependencies, :adapter)).not_to have_dependencies
-    end
-  end
-
   # This allows us to use this class as entries for a Set
   describe '#eql' do
     it 'is true if the views contain the same data' do

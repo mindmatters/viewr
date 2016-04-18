@@ -1,0 +1,4 @@
+adapter: 'postgres'
+encoding: utf8
+database: test_database
+username: postgres

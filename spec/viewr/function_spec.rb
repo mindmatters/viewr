@@ -1,5 +1,5 @@
 # coding: utf-8
-require_relative '../support/shared_examples_for_database_objects'
+require_relative '../shared_examples/database_object'
 require_relative '../../lib/viewr/function'
 
 describe Viewr::Function do

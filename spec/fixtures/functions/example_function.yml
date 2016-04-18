@@ -1,3 +1,9 @@
 name: example_function
 sql: |
-  SELECT 'SAMPLE SQL CODE';
+  CREATE OR REPLACE FUNCTION example_function(n INTEGER)
+    RETURNS INTEGER
+    AS
+    $BODY$
+    SELECT n
+    $BODY$
+    LANGUAGE sql;
