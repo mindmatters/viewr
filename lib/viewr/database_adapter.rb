@@ -29,13 +29,13 @@ module Viewr
 
     def drop_view_sql(view_name)
       case view_type(view_name)
-      when :view then "DROP VIEW #{view_name}"
-      when :materialized_view then "DROP MATERIALIZED VIEW #{view_name}"
+      when :view then "DROP VIEW #{view_name} CASCADE"
+      when :materialized_view then "DROP MATERIALIZED VIEW #{view_name} CASCADE"
       end
     end
 
     def drop_function_sql(fully_qualified_function_name)
-      "DROP FUNCTION #{fully_qualified_function_name}"
+      "DROP FUNCTION #{fully_qualified_function_name} CASCADE"
     end
 
     def view_exists?(view_name)
